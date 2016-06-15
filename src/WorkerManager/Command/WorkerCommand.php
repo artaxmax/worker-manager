@@ -153,6 +153,10 @@ class WorkerCommand extends Command
         $updateManager = $this->getUpdateManager();
         $logger = $this->getLogger();
         list ($workers, $VMConfigs) = $statusManager->initData();
+        $sleepSec = (int) ConfigManager::getConfig()->get('worker_manager.sleep_time');
+        if ($sleepSec < 10) {
+            $sleepSec = 10;
+        }
 
         do {
             $statusManager->updateStatus($workers, $VMConfigs);
@@ -172,15 +176,18 @@ class WorkerCommand extends Command
                     }
                     break;
             }
-        } while ($this->isAlive());
+        } while ($this->isAlive($sleepSec));
     }
 
     /**
+     * @param int $sleepSec
+     *
      * @return bool
      */
-    protected function isAlive()
+    protected function isAlive($sleepSec)
     {
-        sleep(5);
+        sleep($sleepSec);
+
         return true;
     }
 

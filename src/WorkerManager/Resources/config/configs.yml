@@ -4,3 +4,4 @@ worker_manager:
         queue: \WorkerManager\Model\QueueConfig
         rabbitmq: \WorkerManager\Model\RabbitMQVHostConfig
         supervisor: \WorkerManager\Model\VMConfig
+    sleep_time: 30
