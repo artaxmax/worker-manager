@@ -157,6 +157,7 @@ class WorkerCommand extends AbstractWorkerCommand
                     $output->writeln('Restarting workers...');
                     /** @var \WorkerManager\Model\VMConfig $VMConfig */
                     foreach ($VMConfigs as $VMConfig) {
+                        $output->writeln('Restart ' . $VMConfig->getName());
                         $updateManager->restartWorkers(
                             $VMConfig,
                             function ($response) use ($output) {
