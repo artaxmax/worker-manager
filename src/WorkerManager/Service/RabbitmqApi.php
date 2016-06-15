@@ -230,7 +230,7 @@ class RabbitmqApi
      */
     private function callApi($url, $json = false, $query = [])
     {
-        $curl = curl_init(sprintf('%s?$s', $url, http_build_query($query)));
+        $curl = curl_init(sprintf('%s?%s', $url, http_build_query($query)));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
