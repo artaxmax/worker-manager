@@ -10,6 +10,21 @@ use Noodlehaus\Config;
 class ConfigManager
 {
     /**
+     * @var array
+     */
+    static protected $configs = [];
+
+    /**
+     * @param string $path
+     */
+    static public function register($path)
+    {
+        if (is_dir($path) || is_file($path)) {
+            static::$configs[] = $path;
+        }
+    }
+
+    /**
      * @return \WorkerManager\Model\WorkerConfig[]
      * @throws \Exception
      */
@@ -84,13 +99,7 @@ class ConfigManager
      */
     static protected function getConfig()
     {
-        $fileName = dirname(dirname(dirname(__DIR__))).'/app/config/worker-manager.yml';
-        if (is_file($fileName)) {
-            $config = Config::load($fileName);
-        } else {
-            throw new \Exception (sprintf('File %s not exist!', $fileName));
-        }
+        return Config::load(static::$configs);
 
-        return $config;
     }
 }

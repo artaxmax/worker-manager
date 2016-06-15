@@ -1,0 +1,6 @@
+worker_manager:
+    classes:
+        worker: \WorkerManager\Model\WorkerConfig
+        queue: \WorkerManager\Model\QueueConfig
+        rabbitmq: \WorkerManager\Model\RabbitMQVHostConfig
+        supervisor: \WorkerManager\Model\VMConfig

@@ -6,6 +6,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WorkerManager\Interfaces\LoggerInterface;
+use WorkerManager\Service\ConfigManager;
 use WorkerManager\Service\WorkerStatusManager;
 use WorkerManager\Service\WorkerUpdateManager;
 
@@ -130,6 +131,7 @@ class WorkerCommand extends Command
         $this->pidFile = $pidFile;
         $this->actionFile = $actionFile;
         parent::__construct();
+        ConfigManager::register(dirname(__DIR__).'/Resources/config');
     }
 
     /**
