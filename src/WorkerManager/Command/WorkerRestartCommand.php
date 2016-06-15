@@ -30,7 +30,7 @@ class WorkerRestartCommand extends AbstractWorkerCommand
         $output->writeln('<info>Restart workers</info>');
 
         $action = self::ACTION_RESTART;
-        ActionFileManager::getAction($action);
+        ActionFileManager::updateAction($action);
         if ($input->getOption('wait-response')) {
             while ($action === self::ACTION_RESTART) {
                 sleep(5);
