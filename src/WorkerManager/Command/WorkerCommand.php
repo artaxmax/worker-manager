@@ -2,10 +2,10 @@
 
 namespace WorkerManager\Command;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WorkerManager\Interfaces\LoggerInterface;
+use WorkerManager\Service\ActionFileManager;
 use WorkerManager\Service\ConfigManager;
 use WorkerManager\Service\WorkerStatusManager;
 use WorkerManager\Service\WorkerUpdateManager;
@@ -13,10 +13,8 @@ use WorkerManager\Service\WorkerUpdateManager;
 /**
  * WorkerManager\Command\WorkerCommand
  */
-class WorkerCommand extends Command
+class WorkerCommand extends AbstractWorkerCommand
 {
-    const ACTION_MONITORING = 'monitoring';
-
     /**
      * @var WorkerStatusManager
      */
@@ -31,16 +29,6 @@ class WorkerCommand extends Command
      * @var LoggerInterface
      */
     protected $logger;
-
-    /**
-     * @var string
-     */
-    protected $pidFile;
-
-    /**
-     * @var string
-     */
-    protected $actionFile;
 
     /**
      * Getter of Logger
@@ -59,7 +47,7 @@ class WorkerCommand extends Command
      *
      * @return static
      */
-    public function setLogger($logger)
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
 
@@ -123,18 +111,6 @@ class WorkerCommand extends Command
     }
 
     /**
-     * @param string $pidFile
-     * @param string $actionFile
-     */
-    public function __construct($pidFile = null, $actionFile = null)
-    {
-        $this->pidFile = $pidFile;
-        $this->actionFile = $actionFile;
-        parent::__construct();
-        ConfigManager::register(dirname(__DIR__).'/Resources/config');
-    }
-
-    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -157,12 +133,14 @@ class WorkerCommand extends Command
         if ($sleepSec < 10) {
             $sleepSec = 10;
         }
+        $output->writeln('Worker monitoring: <info>running</info>');
 
         do {
             $statusManager->updateStatus($workers, $VMConfigs);
             $action = $this->getAction();
             switch ($action) {
                 case self::ACTION_MONITORING:
+                    /** @var \WorkerManager\Model\WorkerConfig $worker */
                     foreach ($workers as $worker) {
                         $updateManager->update($worker);
                         if ($logger) {
@@ -174,6 +152,19 @@ class WorkerCommand extends Command
                             $logger->logVM($VMConfig);
                         }
                     }
+                    break;
+                case self::ACTION_RESTART:
+                    $output->writeln('Restarting workers...');
+                    /** @var \WorkerManager\Model\VMConfig $VMConfig */
+                    foreach ($VMConfigs as $VMConfig) {
+                        $updateManager->restartWorkers(
+                            $VMConfig,
+                            function ($response) use ($output) {
+                                $output->writeln($response);
+                            }
+                        );
+                    }
+                    ActionFileManager::updateAction(static::ACTION_MONITORING);
                     break;
             }
         } while ($this->isAlive($sleepSec));
@@ -196,17 +187,7 @@ class WorkerCommand extends Command
      */
     protected function initMonitoring()
     {
-        $this->pidFile = $this->pidFile ?: dirname(dirname(dirname(__DIR__))).'/worker-monitoring.pid';
-        $this->actionFile = $this->actionFile ?: dirname(dirname(dirname(__DIR__))).'/worker-monitoring.action';
-        file_put_contents($this->pidFile, getmypid());
-        file_put_contents($this->actionFile, self::ACTION_MONITORING);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getAction()
-    {
-        return file_get_contents($this->actionFile);
+        ActionFileManager::updatePid();
+        ActionFileManager::updateAction(self::ACTION_MONITORING);
     }
 }

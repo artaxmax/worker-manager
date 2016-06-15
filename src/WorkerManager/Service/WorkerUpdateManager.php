@@ -2,6 +2,7 @@
 
 namespace WorkerManager\Service;
 
+use WorkerManager\Model\VMConfig;
 use WorkerManager\Model\WorkerConfig;
 use WorkerManager\Model\WorkerProcess;
 
@@ -53,6 +54,31 @@ class WorkerUpdateManager
         }
 
         return true;
+    }
+
+    /**
+     * @param VMConfig $VMConfig
+     * @param callable $callback
+     */
+    public function restartWorkers(VMConfig $VMConfig, $callback = null)
+    {
+        $workersProcesses = [];
+        foreach ($VMConfig->getProcesses() as $process) {
+            if ($process->isRunning()) {
+                $workersProcesses[] = $process->getProcessName();
+            }
+        }
+        $response = SupervisorManager::init(
+            $VMConfig->getHost(),
+            $VMConfig->getPort(),
+            $VMConfig->getUsername(),
+            $VMConfig->getPassword()
+        )->runCommand(
+            sprintf('restart %s', implode(' ', $workersProcesses))
+        );
+        if (is_callable($callback)) {
+            $callback($response);
+        }
     }
 
     /**
@@ -125,7 +151,8 @@ class WorkerUpdateManager
     protected function stopProcess(WorkerProcess $process)
     {
         $VMConfig = $process->getVMConfig();
-        SupervisorManager::init($VMConfig->getHost(),
+        SupervisorManager::init(
+            $VMConfig->getHost(),
             $VMConfig->getPort(),
             $VMConfig->getUsername(),
             $VMConfig->getPassword()
@@ -141,7 +168,8 @@ class WorkerUpdateManager
     protected function startProcess(WorkerProcess $process)
     {
         $VMConfig = $process->getVMConfig();
-        SupervisorManager::init($VMConfig->getHost(),
+        SupervisorManager::init(
+            $VMConfig->getHost(),
             $VMConfig->getPort(),
             $VMConfig->getUsername(),
             $VMConfig->getPassword()
