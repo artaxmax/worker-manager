@@ -97,7 +97,7 @@ class ConfigManager
      * @return Config
      * @throws \Exception
      */
-    static protected function getConfig()
+    static public function getConfig()
     {
         return Config::load(static::$configs);
 
