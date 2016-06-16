@@ -30,11 +30,6 @@ class WorkerMonitoring
     protected $name;
 
     /**
-     * @var array
-     */
-    protected $options = [];
-
-    /**
      * @var bool
      */
     protected $balancing = false;
@@ -125,5 +120,49 @@ class WorkerMonitoring
     public function updateAction($action)
     {
         return $this->actionFile->flushAction($action);
+    }
+
+    /**
+     * Getter of Balancing
+     *
+     * @return boolean
+     */
+    public function isBalancing()
+    {
+        return $this->balancing;
+    }
+
+    /**
+     * Getter of Name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Getter of PID
+     *
+     * @return int
+     */
+    public function getPID()
+    {
+        return $this->PID;
+    }
+
+    /**
+     * Setter of PID
+     *
+     * @param int $PID
+     *
+     * @return static
+     */
+    public function setPID($PID)
+    {
+        $this->PID = $PID;
+
+        return $this;
     }
 }

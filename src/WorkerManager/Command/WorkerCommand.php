@@ -131,9 +131,19 @@ class WorkerCommand extends AbstractWorkerCommand
         list ($workers, $VMConfigs) = $statusManager->initData();
 
         $output->writeln('Worker monitoring: <info>running</info>');
+        $output->write('Balancing: ');
+        if ($monitoring->isBalancing()) {
+            $output->writeln('<info>yes</info>');
+        } else {
+            $output->writeln('<comment>no</comment>');
+        }
+        $output->writeln('Node name: <info>'.$monitoring->getName().'</info>');
+        $output->writeln('Node PID: <info>'.$monitoring->getPID().'</info>');
+        $output->write('Status: ');
 
         do {
             if ($monitoring->isMaster()) {
+                $output->write('<info>master</info> ');
                 $statusManager->updateStatus($workers, $VMConfigs);
                 switch ($monitoring->getAction()) {
                     case self::ACTION_MONITORING:
@@ -165,6 +175,8 @@ class WorkerCommand extends AbstractWorkerCommand
                         $monitoring->updateAction(static::ACTION_MONITORING);
                         break;
                 }
+            } else {
+                $output->write('<info>slave</info> ');
             }
             $monitoring->wait();
         } while ($this->isAlive());
