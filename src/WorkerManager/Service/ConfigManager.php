@@ -33,7 +33,7 @@ class ConfigManager
         $config = static::getConfig();
         $className = $config->get('worker_manager.classes.worker');
         $queueClass = $config->get('worker_manager.classes.queue');
-        $workerData = $config->get('worker_manager.worker');
+        $workerData = $config->get('worker_manager.worker') ?: [];
         $result = [];
         foreach ($workerData as $data) {
             /** @var \WorkerManager\Model\WorkerConfig $worker */
@@ -55,7 +55,7 @@ class ConfigManager
     {
         $config = static::getConfig();
         $className = $config->get('worker_manager.classes.rabbitmq');
-        $configData = $config->get('worker_manager.rabbitmq');
+        $configData = $config->get('worker_manager.rabbitmq') ?: [];
         $result = [];
         foreach ($configData as $data) {
             /** @var \WorkerManager\Model\RabbitMQVHostConfig $vhost */
@@ -79,7 +79,7 @@ class ConfigManager
     {
         $config = static::getConfig();
         $className = $config->get('worker_manager.classes.supervisor');
-        $workerData = $config->get('worker_manager.supervisor');
+        $workerData = $config->get('worker_manager.supervisor') ?: [];
         $result = [];
         foreach ($workerData as $data) {
             /** @var \WorkerManager\Model\VMConfig $supervisor */
@@ -100,6 +100,5 @@ class ConfigManager
     static public function getConfig()
     {
         return Config::load(static::$configs);
-
     }
 }

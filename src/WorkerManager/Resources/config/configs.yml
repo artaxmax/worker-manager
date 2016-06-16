@@ -5,3 +5,9 @@ worker_manager:
         rabbitmq: \WorkerManager\Model\RabbitMQVHostConfig
         supervisor: \WorkerManager\Model\VMConfig
     sleep_time: 30
+    monitoring:
+        action_file_path: /tmp
+        balancing: false
+        node: main
+        nodes:
+            - { name: main }

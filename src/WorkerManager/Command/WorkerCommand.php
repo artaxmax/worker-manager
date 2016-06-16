@@ -5,8 +5,7 @@ namespace WorkerManager\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WorkerManager\Interfaces\LoggerInterface;
-use WorkerManager\Service\ActionFileManager;
-use WorkerManager\Service\ConfigManager;
+use WorkerManager\Service\WorkerMonitoring;
 use WorkerManager\Service\WorkerStatusManager;
 use WorkerManager\Service\WorkerUpdateManager;
 
@@ -124,71 +123,58 @@ class WorkerCommand extends AbstractWorkerCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->initMonitoring();
+        $monitoring = WorkerMonitoring::init();
+
         $statusManager = $this->getStatusManager();
         $updateManager = $this->getUpdateManager();
         $logger = $this->getLogger();
         list ($workers, $VMConfigs) = $statusManager->initData();
-        $sleepSec = (int) ConfigManager::getConfig()->get('worker_manager.sleep_time');
-        if ($sleepSec < 10) {
-            $sleepSec = 10;
-        }
+
         $output->writeln('Worker monitoring: <info>running</info>');
 
         do {
-            $statusManager->updateStatus($workers, $VMConfigs);
-            $action = $this->getAction();
-            switch ($action) {
-                case self::ACTION_MONITORING:
-                    /** @var \WorkerManager\Model\WorkerConfig $worker */
-                    foreach ($workers as $worker) {
-                        $updateManager->update($worker);
-                        if ($logger) {
-                            $logger->logWorker($worker);
-                        }
-                    }
-                    if ($logger) {
-                        foreach ($VMConfigs as $VMConfig) {
-                            $logger->logVM($VMConfig);
-                        }
-                    }
-                    break;
-                case self::ACTION_RESTART:
-                    $output->writeln('Restarting workers...');
-                    /** @var \WorkerManager\Model\VMConfig $VMConfig */
-                    foreach ($VMConfigs as $VMConfig) {
-                        $output->writeln('Restart ' . $VMConfig->getName());
-                        $updateManager->restartWorkers(
-                            $VMConfig,
-                            function ($response) use ($output) {
-                                $output->writeln($response);
+            if ($monitoring->isMaster()) {
+                $statusManager->updateStatus($workers, $VMConfigs);
+                switch ($monitoring->getAction()) {
+                    case self::ACTION_MONITORING:
+                        /** @var \WorkerManager\Model\WorkerConfig $worker */
+                        foreach ($workers as $worker) {
+                            $updateManager->update($worker);
+                            if ($logger) {
+                                $logger->logWorker($worker);
                             }
-                        );
-                    }
-                    ActionFileManager::updateAction(static::ACTION_MONITORING);
-                    break;
+                        }
+                        if ($logger) {
+                            foreach ($VMConfigs as $VMConfig) {
+                                $logger->logVM($VMConfig);
+                            }
+                        }
+                        break;
+                    case self::ACTION_RESTART:
+                        $output->writeln('Restarting workers...');
+                        /** @var \WorkerManager\Model\VMConfig $VMConfig */
+                        foreach ($VMConfigs as $VMConfig) {
+                            $output->writeln('Restart ' . $VMConfig->getName());
+                            $updateManager->restartWorkers(
+                                $VMConfig,
+                                function ($response) use ($output) {
+                                    $output->writeln($response);
+                                }
+                            );
+                        }
+                        $monitoring->updateAction(static::ACTION_MONITORING);
+                        break;
+                }
             }
-        } while ($this->isAlive($sleepSec));
+            $monitoring->wait();
+        } while ($this->isAlive());
     }
 
     /**
-     * @param int $sleepSec
-     *
      * @return bool
      */
-    protected function isAlive($sleepSec)
+    protected function isAlive()
     {
-        sleep($sleepSec);
-
         return true;
-    }
-
-    /**
-     * init tmp files
-     */
-    protected function initMonitoring()
-    {
-        ActionFileManager::updatePid();
-        ActionFileManager::updateAction(self::ACTION_MONITORING);
     }
 }
