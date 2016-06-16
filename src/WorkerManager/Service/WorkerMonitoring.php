@@ -109,7 +109,7 @@ class WorkerMonitoring
      */
     public function getAction()
     {
-        return $this->actionFile->loadAction();
+        return trim($this->actionFile->loadAction());
     }
 
     /**

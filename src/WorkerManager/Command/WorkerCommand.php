@@ -124,6 +124,7 @@ class WorkerCommand extends AbstractWorkerCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $monitoring = WorkerMonitoring::init();
+        $monitoring->updateAction(self::ACTION_MONITORING);
 
         $statusManager = $this->getStatusManager();
         $updateManager = $this->getUpdateManager();
@@ -143,9 +144,10 @@ class WorkerCommand extends AbstractWorkerCommand
 
         do {
             if ($monitoring->isMaster()) {
-                $output->write('<info>master</info> ');
+                $action = $monitoring->getAction();
+                $output->write('<info>master['.$action.']</info> ');
                 $statusManager->updateStatus($workers, $VMConfigs);
-                switch ($monitoring->getAction()) {
+                switch ($action) {
                     case self::ACTION_MONITORING:
                         /** @var \WorkerManager\Model\WorkerConfig $worker */
                         foreach ($workers as $worker) {
@@ -176,7 +178,7 @@ class WorkerCommand extends AbstractWorkerCommand
                         break;
                 }
             } else {
-                $output->write('<info>slave</info> ');
+                $output->write('<comment>slave</comment> ');
             }
             $monitoring->wait();
         } while ($this->isAlive());
