@@ -19,7 +19,7 @@ class ConfigManager
      */
     static public function register($path)
     {
-        if (is_dir($path) || is_file($path)) {
+        if ((is_dir($path) || is_file($path)) && !in_array($path, static::$configs)) {
             static::$configs[] = $path;
         }
     }

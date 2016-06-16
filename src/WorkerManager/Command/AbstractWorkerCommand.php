@@ -3,7 +3,6 @@
 namespace WorkerManager\Command;
 
 use Symfony\Component\Console\Command\Command;
-use WorkerManager\Service\ActionFileManager;
 use WorkerManager\Service\ConfigManager;
 
 /**
@@ -20,16 +19,7 @@ abstract class AbstractWorkerCommand extends Command
     public function __construct()
     {
         ConfigManager::register(dirname(__DIR__).'/Resources/config');
-        ActionFileManager::init();
 
         parent::__construct();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getAction()
-    {
-        return ActionFileManager::getAction(self::ACTION_MONITORING);
     }
 }
