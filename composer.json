@@ -1,6 +1,6 @@
 {
   "name": "artaxmax/worker-manager",
-  "description": "description_text",
+  "description": "RabbitMQ workers manager",
   "license": "proprietary",
   "authors": [
     {

@@ -12,6 +12,9 @@ use WorkerManager\Model\WorkerProcess;
  */
 class WorkerStatusManager
 {
+    const OPTION_STATS_AGE = 'stats_age';
+    const OPTION_STATS_INCR = 'stats_incr';
+
     /**
      * @var SupervisorManager
      */
@@ -31,6 +34,11 @@ class WorkerStatusManager
      * @var VMConfig[]
      */
     protected $VMConfig;
+
+    /**
+     * @var array
+     */
+    protected $options = [];
 
     /**
      * @param WorkerConfig[]        $workerConfigs
@@ -156,6 +164,26 @@ class WorkerStatusManager
     }
 
     /**
+     * Setter of Options
+     *
+     * @param array $options
+     *
+     * @return static
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = array_merge(
+            [
+                self::OPTION_STATS_AGE => 60,
+                self::OPTION_STATS_INCR => 10,
+            ],
+            $options
+        );
+
+        return $this;
+    }
+
+    /**
      * @param VMConfig[] $configs
      *
      * @return array
@@ -260,7 +288,10 @@ class WorkerStatusManager
                             'stats' => $stats,
                         ];
                     },
-                    ['lengths_age' => 300, 'lengths_incr' => 60]
+                    [
+                        'lengths_age' => $this->options[self::OPTION_STATS_AGE],
+                        'lengths_incr' => $this->options[self::OPTION_STATS_INCR]
+                    ]
                 );
             }
             $queueName = $queue->getName();

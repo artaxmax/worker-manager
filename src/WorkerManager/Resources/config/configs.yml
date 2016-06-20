@@ -5,6 +5,9 @@ worker_manager:
         rabbitmq: \WorkerManager\Model\RabbitMQVHostConfig
         supervisor: \WorkerManager\Model\VMConfig
     sleep_time: 30
+    options:
+        stats_age: 60
+        stats_incr: 10
     monitoring:
         action_file_path: /tmp
         balancing: false

@@ -35,7 +35,7 @@ class RabbitMQVHostConfig
     /**
      * @var string
      */
-    protected $hostTemplate;
+    protected $hostTemplate = 'http://[host]:[port]';
 
     /**
      * @param string $name

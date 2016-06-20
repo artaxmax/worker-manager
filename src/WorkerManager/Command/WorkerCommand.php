@@ -5,6 +5,7 @@ namespace WorkerManager\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use WorkerManager\Interfaces\LoggerInterface;
+use WorkerManager\Service\ConfigManager;
 use WorkerManager\Service\WorkerMonitoring;
 use WorkerManager\Service\WorkerStatusManager;
 use WorkerManager\Service\WorkerUpdateManager;
@@ -127,6 +128,7 @@ class WorkerCommand extends AbstractWorkerCommand
         $monitoring->updateAction(self::ACTION_MONITORING);
 
         $statusManager = $this->getStatusManager();
+        $statusManager->setOptions(ConfigManager::getConfig()->get('worker_manager.options') ?: []);
         $updateManager = $this->getUpdateManager();
         $logger = $this->getLogger();
         list ($workers, $VMConfigs) = $statusManager->initData();
