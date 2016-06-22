@@ -27,26 +27,25 @@ class WorkerUpdateManager
         $queue = $worker->getQueue();
         $stats = $queue->getStats();
         if (empty($stats)) {
-            $statsSum = $minStats = $maxStats = $first = $last = 0;
+            $statsSum = $minStats = $maxStats = 0;
         } else {
             $statsSum = array_sum($stats);
             $minStats = min($stats);
             $maxStats = max($stats);
-            $first = reset($stats);
-            $last = end($stats);
         }
         if ($queue->getMessages() > 0) {
             if ($worker->getRunningCount() === 0) {
                 $this->updateWorkerCount($worker, $worker->getRunningCount() + 1);
             } else {
-                $grow = $this->isGrowUp($worker) || ($minStats > 0 && $first > $last);
-                if ($grow && !$worker->isMaxWorkerCount()) {
-                    $this->updateWorkerCount($worker, $worker->getRunningCount() + 1);
-
-                    return true;
-                }
-                if ($maxStats < $worker->getRunningCount()) {
+                // message count grow up
+                if ($this->isGrowUp($worker)) {
+                    $this->updateWorkerCount($worker, $worker->getMaxWorkerCount());
+                // message count lower then worker count
+                } elseif ($maxStats < $worker->getRunningCount()) {
                     $this->updateWorkerCount($worker, $worker->getRunningCount() - 1);
+                // min count (for configured interval) more then 0
+                } elseif ($minStats > 0) {
+                    $this->updateWorkerCount($worker, $worker->getRunningCount() + 1);
                 }
             }
         } elseif ($statsSum == 0 && !$worker->isMinWorkerCount()) {
