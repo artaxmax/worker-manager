@@ -81,12 +81,17 @@ class ConfigManager
         $className = $config->get('worker_manager.classes.supervisor');
         $workerData = $config->get('worker_manager.supervisor') ?: [];
         $result = [];
+        $readConfig = ['username', 'password', 'server', 'config', 'use_sudo'];
         foreach ($workerData as $data) {
             /** @var \WorkerManager\Model\VMConfig $supervisor */
             $supervisor = new $className($data['name']);
-            $supervisor->setHost($data['host'])->setUsername($data['username'])
-                ->setPassword($data['password'])->setMaxWorkerCount((int) $data['max_worker_count']);
-
+            foreach ($readConfig as $name) {
+                $method = 'set'.strtr(ucfirst(strtr($name, ['_' => ''])), [' ' => '']);
+                if (isset($data[$name]) && method_exists($supervisor, $method)) {
+                    $supervisor->{$method}($data[$name]);
+                }
+            }
+            $supervisor->setMaxWorkerCount((int) $data['max_worker_count']);
             $result[] = $supervisor;
         }
 

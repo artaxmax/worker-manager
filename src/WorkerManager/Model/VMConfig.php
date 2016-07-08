@@ -15,12 +15,12 @@ class VMConfig
     /**
      * @var string
      */
-    protected $host;
+    protected $server;
 
     /**
      * @var string
      */
-    protected $port = '8081';
+    protected $config;
 
     /**
      * @var string
@@ -43,59 +43,16 @@ class VMConfig
     protected $processes;
 
     /**
+     * @var bool
+     */
+    protected $useSudo = false;
+
+    /**
      * @param string $name
      */
     public function __construct($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * Getter of Host
-     *
-     * @return string
-     */
-    public function getHost()
-    {
-        return $this->host;
-    }
-
-    /**
-     * Setter of Host
-     *
-     * @param string $host
-     *
-     * @return static
-     */
-    public function setHost($host)
-    {
-        $this->host = $host;
-
-        return $this;
-    }
-
-    /**
-     * Getter of Port
-     *
-     * @return string
-     */
-    public function getPort()
-    {
-        return $this->port;
-    }
-
-    /**
-     * Setter of Port
-     *
-     * @param string $port
-     *
-     * @return static
-     */
-    public function setPort($port)
-    {
-        $this->port = $port;
-
-        return $this;
     }
 
     /**
@@ -243,5 +200,77 @@ class VMConfig
         }
 
         return $runningCount;
+    }
+
+    /**
+     * Getter of Config
+     *
+     * @return string
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * Setter of Config
+     *
+     * @param string $config
+     *
+     * @return static
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * Getter of Server
+     *
+     * @return string
+     */
+    public function getServer()
+    {
+        return $this->server;
+    }
+
+    /**
+     * Setter of Server
+     *
+     * @param string $server
+     *
+     * @return static
+     */
+    public function setServer($server)
+    {
+        $this->server = $server;
+
+        return $this;
+    }
+
+    /**
+     * Getter of UseSudo
+     *
+     * @return boolean
+     */
+    public function hasUseSudo()
+    {
+        return $this->useSudo;
+    }
+
+    /**
+     * Setter of UseSudo
+     *
+     * @param boolean $useSudo
+     *
+     * @return static
+     */
+    public function setUseSudo($useSudo)
+    {
+        $this->useSudo = $useSudo;
+
+        return $this;
     }
 }

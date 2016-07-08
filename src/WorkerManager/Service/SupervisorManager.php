@@ -3,6 +3,7 @@
 namespace WorkerManager\Service;
 
 use Symfony\Component\Process\Process;
+use WorkerManager\Model\VMConfig;
 
 /**
  * WorkerManager\Service\SupervisorManager
@@ -10,60 +11,68 @@ use Symfony\Component\Process\Process;
 class SupervisorManager
 {
     /**
-     * @var string
+     * @var bool
      */
-    protected $host;
+    protected $useSudo = false;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $port;
+    protected $options = [];
 
     /**
-     * @var string
-     */
-    protected $username;
-
-    /**
-     * @var string
-     */
-    protected $password;
-
-    /**
-     * @param string $host
-     * @param string $port
-     * @param string $username
-     * @param string $password
+     * @param VMConfig $VMConfig
      *
      * @return static
      */
-    static public function init($host, $port, $username, $password)
-    {
-        return new static($host, $port, $username, $password);
+    static public function init(
+        VMConfig $VMConfig
+    ) {
+        $server = $VMConfig->getServer();
+
+        $manager = new static(
+            $server,
+            $VMConfig->getUsername(),
+            $VMConfig->getPassword(),
+            $VMConfig->getConfig()
+        );
+        if ($VMConfig->hasUseSudo()) {
+            $manager->setUseSudo(true);
+        }
+
+        return $manager;
     }
 
     /**
-     * @param string $host
-     * @param string $port
+     * @param string $server
      * @param string $username
      * @param string $password
+     * @param string $config
      */
-    public function __construct($host, $port, $username, $password)
+    public function __construct($server, $username, $password, $config)
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->username = $username;
-        $this->password = $password;
+        $this->options = array_filter(
+            [
+                's' => $server,
+                'u' => $username,
+                'p' => $password,
+                'c' => $config,
+            ]
+        );
     }
 
     /**
-     * @return array
+     * Setter of UseSudo
+     *
+     * @param boolean $useSudo
+     *
+     * @return static
      */
-    public function getVMStatus()
+    public function setUseSudo($useSudo)
     {
-        $process = new Process(sprintf('ping -c 1 -W 5 %s', escapeshellarg($this->host)));
+        $this->useSudo = $useSudo;
 
-        return ($process->run() === 0);
+        return $this;
     }
 
     /**
@@ -71,7 +80,7 @@ class SupervisorManager
      */
     public function getHostStatus()
     {
-        $process = $this->createProcess($this->host, '');
+        $process = $this->createProcess('');
         $response = '';
         $process->run(
             function ($type, $line) use (&$response) {
@@ -95,7 +104,7 @@ class SupervisorManager
      */
     public function runCommand($command)
     {
-        $process = $this->createProcess($this->host, $command);
+        $process = $this->createProcess($command);
         $response = '';
         $process->run(
             function ($type, $line) use (&$response) {
@@ -109,25 +118,23 @@ class SupervisorManager
     }
 
     /**
-     * @param string $host
      * @param string $command
-     * @param string $port
-     * @param string $username
-     * @param string $password
+     * @param array  $options
      *
      * @return Process
      */
-    protected function createProcess($host, $command, $port = '8081', $username = null, $password = null)
+    protected function createProcess($command = '', array $options = [])
     {
+        $options = array_merge($this->options, $options);
+        $commandVar = $this->useSudo ? ['sudo', 'supervisorctl'] : ['supervisorctl'];
+        $commandParams = [];
+        foreach ($options as $name => $value) {
+            $commandVar[] = '-'.$name.' %s';
+            $commandParams[] = $value;
+        }
+        $commandVar[] = $command;
         $process = new Process(
-            sprintf(
-                'supervisorctl -s http://%s:%s -u %s -p %s %s',
-                $host,
-                $port,
-                $username ?: $this->username,
-                $password ?: $this->password,
-                $command
-            )
+            call_user_func_array('sprintf', array_merge([implode(' ', $commandVar)], $commandParams))
         );
 
         return $process;

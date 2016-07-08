@@ -43,9 +43,10 @@ Create config [YML](http://yaml.org/) file (config.yml)
         worker_manager:
             supervisor1:
                 name: supervisor1
-                host: localhost
+                server: http://localhost:8081
                 username: username
                 password: password
+                config: /.../supervisor.conf
                 max_worker_count: 10
                 
 * Configure each one worker:
@@ -72,7 +73,7 @@ Run application:
     php app/console.php worker-manager:start
     
 
-You can add your own logging class. Is should implement `WorkerManager\Interfaces\LoggerInterface` interface:
+You can add your own logging class. It should implement `WorkerManager\Interfaces\LoggerInterface` interface:
 
     <?php
         ...

@@ -106,12 +106,7 @@ class WorkerStatusManager
      */
     protected function loadStatus(VMConfig $VMConfig)
     {
-        $status = SupervisorManager::init(
-            $VMConfig->getHost(),
-            $VMConfig->getPort(),
-            $VMConfig->getUsername(),
-            $VMConfig->getPassword()
-        )->getHostStatus();
+        $status = SupervisorManager::init($VMConfig)->getHostStatus();
         if (null === $status) {
             throw new \Exception(sprintf('Unable to load %s supervisor status', $VMConfig->getName()));
         }
@@ -157,7 +152,7 @@ class WorkerStatusManager
         }
         $result = [];
         foreach ($this->VMConfig as $config) {
-            $result[$config->getHost()] = $config;
+            $result[$config->getName()] = $config;
         }
 
         return $result;
@@ -181,23 +176,6 @@ class WorkerStatusManager
         );
 
         return $this;
-    }
-
-    /**
-     * @param VMConfig[] $configs
-     *
-     * @return array
-     */
-    protected function extractHosts($configs)
-    {
-        $hosts = [];
-        foreach ($configs as $config) {
-            if ($config instanceof VMConfig) {
-                $hosts[] = $config->getHost();
-            }
-        }
-
-        return $hosts;
     }
 
     /**
@@ -231,7 +209,6 @@ class WorkerStatusManager
                 }
             }
         }
-
         foreach ($workers as $worker) {
             if (null === $worker->getProcess()) {
                 throw new \Exception(
