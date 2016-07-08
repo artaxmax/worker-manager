@@ -67,12 +67,7 @@ class WorkerUpdateManager
                 $workersProcesses[] = $process->getProcessName();
             }
         }
-        $response = SupervisorManager::init(
-            $VMConfig->getHost(),
-            $VMConfig->getPort(),
-            $VMConfig->getUsername(),
-            $VMConfig->getPassword()
-        )->runCommand(
+        $response = SupervisorManager::init($VMConfig)->runCommand(
             sprintf('restart %s', implode(' ', $workersProcesses))
         );
         if (is_callable($callback)) {
@@ -150,12 +145,7 @@ class WorkerUpdateManager
     protected function stopProcess(WorkerProcess $process)
     {
         $VMConfig = $process->getVMConfig();
-        SupervisorManager::init(
-            $VMConfig->getHost(),
-            $VMConfig->getPort(),
-            $VMConfig->getUsername(),
-            $VMConfig->getPassword()
-        )->runCommand(
+        SupervisorManager::init($VMConfig)->runCommand(
             sprintf('stop %s', $process->getProcessName())
         );
         $process->setStatus(WorkerProcess::STATUS_STOPPED);
@@ -167,12 +157,7 @@ class WorkerUpdateManager
     protected function startProcess(WorkerProcess $process)
     {
         $VMConfig = $process->getVMConfig();
-        SupervisorManager::init(
-            $VMConfig->getHost(),
-            $VMConfig->getPort(),
-            $VMConfig->getUsername(),
-            $VMConfig->getPassword()
-        )->runCommand(
+        SupervisorManager::init($VMConfig)->runCommand(
             sprintf('start %s', $process->getProcessName())
         );
         $process->setStatus(WorkerProcess::STATUS_RUNNING);
