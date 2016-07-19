@@ -14,3 +14,5 @@ worker_manager:
         node: main
         nodes:
             - { name: main }
+    control_panel:
+        type: none

@@ -1,0 +1,5 @@
+worker_manager:
+    control:
+        auth: true
+        username: admin
+        password: admin

@@ -1,0 +1,30 @@
+{% extends "layout.html.twig" %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/bootstrap.css" type="text/css"/>
+{% endblock %}
+{% block javascripts %}
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        {% for worker in workers %}
+            <div class="col-sm-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ worker.name }}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">Min: {{ worker.minWorkerCount }}</div>
+                            <div class="col-sm-4">Max: {{ worker.maxWorkerCount }}</div>
+                            <div class="col-sm-4">Run: {{ worker.runningCount }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
