@@ -39,10 +39,13 @@ class WorkerConfig
 
     /**
      * @var int
-     *
-     * @ODM\Int
      */
     protected $priority = 0;
+
+    /**
+     * @var int
+     */
+    protected $forceMaxCount;
 
     /**
      * @param string $name
@@ -146,6 +149,10 @@ class WorkerConfig
      */
     public function getMaxWorkerCount()
     {
+        if (isset($this->forceMaxCount)) {
+            return $this->forceMaxCount;
+        }
+
         return $this->maxWorkerCount;
     }
 
@@ -221,7 +228,7 @@ class WorkerConfig
      */
     public function isMaxWorkerCount()
     {
-        return $this->runningCount === $this->maxWorkerCount;
+        return $this->getRunningCount() === $this->getMaxWorkerCount();
     }
 
     /**
@@ -229,7 +236,7 @@ class WorkerConfig
      */
     public function isMinWorkerCount()
     {
-        return $this->runningCount === $this->minWorkerCount;
+        return $this->getRunningCount() === $this->getMinWorkerCount();
     }
 
     /**
@@ -266,6 +273,30 @@ class WorkerConfig
     public function setRunningCount($runningCount)
     {
         $this->runningCount = $runningCount;
+
+        return $this;
+    }
+
+    /**
+     * Getter of ForceMaxCount
+     *
+     * @return int
+     */
+    public function getForceMaxCount()
+    {
+        return $this->forceMaxCount;
+    }
+
+    /**
+     * Setter of ForceMaxCount
+     *
+     * @param int $forceMaxCount
+     *
+     * @return static
+     */
+    public function setForceMaxCount($forceMaxCount)
+    {
+        $this->forceMaxCount = $forceMaxCount;
 
         return $this;
     }

@@ -57,6 +57,7 @@ Create config [YML](http://yaml.org/) file (config.yml)
                 queue: worker1-queue
                 vhost: /
                 min_count: 1
+                max_count: 2
         
 Register config file
 

@@ -42,6 +42,9 @@ class ConfigManager
             $queue = new $queueClass($data['queue'], $data['vhost']);
             $worker->setQueue($queue)->setMinWorkerCount((int) $data['min_count'])
                 ->setPriority((int) isset($data['priority']) ? $data['priority'] : 0);
+            if (isset($data['max_count']) && (int) $data['max_count'] >= (int) $data['min_count']) {
+                $worker->setForceMaxCount((int) $data['max_count']);
+            }
             $result[] = $worker;
         }
 
