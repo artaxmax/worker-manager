@@ -44,7 +44,7 @@ class WorkerUpdateManager
                 } elseif ($maxStats < $worker->getRunningCount()) {
                     $this->updateWorkerCount($worker, $worker->getRunningCount() - 1);
                 // min count (for configured interval) more then 0
-                } elseif ($minStats > 0) {
+                } elseif ($minStats > 0 && !$worker->isMaxWorkerCount()) {
                     $this->updateWorkerCount($worker, $worker->getRunningCount() + 1);
                 }
             }
