@@ -83,15 +83,8 @@ class WorkerUpdateManager
      */
     protected function updateWorkerCount(WorkerConfig $worker, $count)
     {
-        if ($worker->getMaxWorkerCount() < $count) {
-            throw new \Exception(
-                sprintf(
-                    'Unable to update %s worker count to %s. Max count: %s',
-                    $worker->getName(),
-                    $count,
-                    $worker->getMaxWorkerCount()
-                )
-            );
+        if ($worker->getMaxWorkerCount() < $count || $worker->getMinWorkerCount() > $count) {
+            return;
         }
         if ($worker->getRunningCount() > $count) {
             $processes = $this->getProcesses($worker, $worker->getRunningCount() - $count);
